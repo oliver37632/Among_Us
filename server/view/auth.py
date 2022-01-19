@@ -2,9 +2,9 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from server.model.validator.auth import SendEmailCodeValidator, CheckEmailCodeValidator, SingupValidator, LoginValidator, CheckNickValidator
+from server.model.validator.auth import SendEmailCodeValidator, CheckEmailCodeValidator, SingupValidator, LoginValidator, CheckNickValidator, FindId
 from server.view import validate_JSON
-from server.controller.auht import singup, send_email, check_code, login, logout, token_refresh, check_nick
+from server.controller.auht import singup, send_email, check_code, login, logout, token_refresh, check_nick, findid, repassword
 
 
 class Singup(Resource):
@@ -74,4 +74,27 @@ class CheckCode(Resource):
         return check_code(
             email=email,
             code=code
+        )
+
+
+class FindId(Resource):
+    @validate_JSON(FindId)
+    def post(self):
+        email = request.json['email']
+        return findid(
+            email=email
+        )
+
+
+class RePassword(Resource):
+    @validate_JSON(CheckEmailCodeValidator)
+    def post(self):
+        email = request.json['email']
+        code = request.json['code']
+        password = request.json['password']
+
+        return repassword(
+            email=email,
+            code=code,
+            password=password
         )
