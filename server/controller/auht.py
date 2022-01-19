@@ -33,12 +33,12 @@ def login(nickname, password):
 
         check_nick = session.query(User).filter(User.nickname == nickname)
         if not check_nick.scalar():
-            abort(404, "email and password does not match")
+            return abort(404, "email and password does not match")
 
         check_nick.first()
         check_password = check_password_hash(User.password, password)
         if not check_password:
-            abort(404, "password and emaill does not match")
+           return abort(404, "password and emaill does not match")
 
         access_token = create_access_token(identity=nickname)
         refresh_token = create_refresh_token(identity=nickname)
@@ -68,7 +68,7 @@ def send_email(email):
         user = session.query(User).filter(User.email == email).scalar()
 
         if not user:
-            abort(409, "this email is already in use")
+            return abort(409, "this email is already in use")
 
         code = f"{random.randint(1111, 9999):04d}"
         title = "AOMGAS_US 이메일 인증 메일"
@@ -90,9 +90,9 @@ def send_email(email):
 def check_code(email, code):
     get_code = Reids.get(email)
     if not get_code:
-        abort(404, 'this email does not exist')
+        return abort(404, 'this email does not exist')
     if int(get_code) != int(code):
-        abort(409, 'email and code does not match')
+        return abort(409, 'email and code does not match')
 
         return {
             "message": "success"
@@ -104,7 +104,7 @@ def check_nick(nickname):
         user = session.query(User).filter(User.nickname == nickname).scalar()
 
         if user:
-            abort(409, "this nockname is use")
+           return abort(409, "this nockname is use")
 
         return {
             "message": "can use this nickname"
@@ -117,3 +117,36 @@ def token_refresh(nickname):
     return {
         "access_token": access_token
     }, 201
+
+
+def findid(email):
+    with session_scope() as session:
+        user = session.query(User).filter(User.email == email).scalar()
+
+        if not user:
+            return abort(404, "Not Find")
+        user.first()
+
+        return {
+            "nickname": user.nickname
+        }, 200
+
+
+def repassword(email, code, password):
+    with session_scope() as session:
+        get_code = Reids.get(email)
+        if not get_code:
+            return abort(404, 'this email does not exist')
+        if int(get_code) != int(code):
+            return abort(409, 'email and code does not match')
+
+        user_email = session.query(User).filter(User.email == email).first()
+
+        if not user_email:
+            return abort(404, "Not Find")
+
+        user_email.password = password
+
+        return {
+            "message": "success"
+        },201
