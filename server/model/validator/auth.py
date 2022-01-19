@@ -24,3 +24,7 @@ class SendEmailCodeValidator(Model):
 class CheckEmailCodeValidator(Model):
     email = EmailType(serialized_name='email')
     code = IntType(serialized_name='code', min_value=1111, max_value=9999)
+
+
+class FindId(Model):
+    email = EmailType(serialized_name='email')
