@@ -4,7 +4,7 @@ from schematics.types import EmailType, StringType, IntType
 
 class SingupValidator(Model):
     email = EmailType(serialized_name='email', required=True)
-    password = StringType(serialized_name='passsword', required=True, min_length=8, max_length=15)
+    password = StringType(serialized_name='password', required=True, min_length=8, max_length=15)
     nickname = StringType(serialized_name='nickname', required=True, min_length=3, max_length=10)
 
 
