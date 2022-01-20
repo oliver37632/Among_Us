@@ -5,19 +5,20 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from server.model.user import User
 from server.model import session_scope, Reids
+from server.controller.email import send_emails
 
 import random
 
 
-def singup(email, nicknaem, password):
+def singup(email, nickname, password):
     with session_scope() as session:
-        origin = session.query.filter(User.email == email).scalar()
-        if origin:
-            return abort(409, "this email is use")
+        origin = session.query(User).filter(User.email == email)
+        if origin.scalar():
+            abort(409, "this email is use")
 
         new_user = User(
             email=email,
-            nicknaem=nicknaem,
+            nickname=nickname,
             password=generate_password_hash(password)
         )
         session.add(new_user)
@@ -33,12 +34,12 @@ def login(nickname, password):
 
         check_nick = session.query(User).filter(User.nickname == nickname)
         if not check_nick.scalar():
-            return abort(404, "email and password does not match")
+            abort(404, "email and password does not match")
 
         check_nick.first()
         check_password = check_password_hash(User.password, password)
         if not check_password:
-           return abort(404, "password and emaill does not match")
+            abort(404, "password and emaill does not match")
 
         access_token = create_access_token(identity=nickname)
         refresh_token = create_refresh_token(identity=nickname)
@@ -56,29 +57,31 @@ def login(nickname, password):
 def logout(nickname):
     token = Reids.get(nickname)
     if not token:
-        return abort(401, "cloud not find token user")
+        abort(401, "cloud not find token user")
     Reids.delete(token)
 
     return {
         "message":"success"
     }, 204
 
+
 def send_email(email):
     with session_scope() as session:
         user = session.query(User).filter(User.email == email).scalar()
 
-        if not user:
-            return abort(409, "this email is already in use")
+        if user:
+            abort(409, "this email is already in use")
 
         code = f"{random.randint(1111, 9999):04d}"
         title = "AOMGAS_US 이메일 인증 메일"
         content = f"이메일 인증 코드는 {code}입니다."
 
-        send_email(code=code,
+        send_emails(adress=email,
                    title=title,
                    content=content
                    )
-        Reids.setx(name=email,
+
+        Reids.setex(name=email,
                    value=code,
                    time=180)
 
@@ -90,9 +93,9 @@ def send_email(email):
 def check_code(email, code):
     get_code = Reids.get(email)
     if not get_code:
-        return abort(404, 'this email does not exist')
+        abort(404, 'this email does not exist')
     if int(get_code) != int(code):
-        return abort(409, 'email and code does not match')
+        abort(409, 'email and code does not match')
 
         return {
             "message": "success"
@@ -104,7 +107,7 @@ def check_nick(nickname):
         user = session.query(User).filter(User.nickname == nickname).scalar()
 
         if user:
-           return abort(409, "this nockname is use")
+           abort(409, "this nockname is use")
 
         return {
             "message": "can use this nickname"
@@ -124,7 +127,7 @@ def findid(email):
         user = session.query(User).filter(User.email == email).scalar()
 
         if not user:
-            return abort(404, "Not Find")
+            abort(404, "Not Find")
         user.first()
 
         return {
@@ -136,14 +139,14 @@ def repassword(email, code, password):
     with session_scope() as session:
         get_code = Reids.get(email)
         if not get_code:
-            return abort(404, 'this email does not exist')
+            abort(404, 'this email does not exist')
         if int(get_code) != int(code):
-            return abort(409, 'email and code does not match')
+            abort(409, 'email and code does not match')
 
         user_email = session.query(User).filter(User.email == email).first()
 
         if not user_email:
-            return abort(404, "Not Find")
+            abort(404, "Not Find")
 
         user_email.password = password
 
