@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from server.config import EMAIL, EMAIL_PASSWORD
 
 
-def send_email(title, content, adress):
+def send_emails(title, content, adress):
     session = smtplib.SMTP(host='smtp.gmail.com', port=587)
 
     session.starttls()
