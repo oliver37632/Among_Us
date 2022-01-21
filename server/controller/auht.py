@@ -4,7 +4,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from server.model.user import User
-from server.model import session_scope, Reids
+from server.model import session_scope, Reids, user
 from server.controller.email import send_emails
 
 import random
@@ -32,14 +32,16 @@ def singup(email, nickname, password):
 def login(nickname, password):
     with session_scope() as session:
 
-        check_nick = session.query(User).filter(User.nickname == nickname)
-        if not check_nick.scalar():
+        user = session.query(User).filter(User.nickname == nickname)
+
+        if not user.scalar():
             abort(404, "email and password does not match")
 
-        check_nick.first()
-        check_password = check_password_hash(User.password, password)
-        if not check_password:
-            abort(404, "password and emaill does not match")
+        user.first()
+        check_user_pw = check_password_hash(user.password, password)
+
+        if not check_user_pw:
+            abort(404, "password and email does not match")
 
         access_token = create_access_token(identity=nickname)
         refresh_token = create_refresh_token(identity=nickname)
@@ -51,7 +53,7 @@ def login(nickname, password):
         return {
             "access_token": access_token,
             "refresh_token": refresh_token
-                },200
+                }, 200
 
 
 def logout(nickname):
@@ -65,7 +67,7 @@ def logout(nickname):
     }, 204
 
 
-def send_email(email):
+async def send_email(email):
     with session_scope() as session:
         user = session.query(User).filter(User.email == email).scalar()
 
