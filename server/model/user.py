@@ -7,6 +7,7 @@ from server.model.life import Life
 
 
 class User(Base):
+
     __tablename__ = 'user'
 
     iduser = Column(Integer, primary_key=True, autoincrement=True)
@@ -16,4 +17,6 @@ class User(Base):
 
     life = relationship("Life", cascade="all,delete", backref="user")
     home = relationship("Home", cascade="all,delete", backref="user")
+
+
 
