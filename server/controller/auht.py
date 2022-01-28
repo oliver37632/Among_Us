@@ -3,8 +3,10 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from datetime import timedelta
+
 from server.model.user import User
-from server.model import session_scope, Reids, user
+from server.model import session_scope, Reids
 from server.controller.email import send_emails
 
 import random
@@ -38,13 +40,20 @@ def login(nickname, password):
             abort(404, "email and password does not match")
 
         user.first()
-        check_user_pw = check_password_hash(user.password, password)
+        check_user_pw = check_password_hash(user.scalar().password, password)
 
         if not check_user_pw:
-            abort(404, "password and email does not match")
+            abort(401, "password and email does not match")
 
-        access_token = create_access_token(identity=nickname)
-        refresh_token = create_refresh_token(identity=nickname)
+        access_expires_delta = timedelta(minutes=60)
+        refresh_expires_delta = timedelta(weeks=1)
+
+        access_token = create_access_token(expires_delta=access_expires_delta,
+                                           identity=nickname
+                                           )
+        refresh_token = create_refresh_token(expires_delta=refresh_expires_delta,
+                                             identity=nickname
+                                             )
 
         Reids.setex(name=nickname,
                     value=refresh_token,
@@ -58,8 +67,10 @@ def login(nickname, password):
 
 def logout(nickname):
     token = Reids.get(nickname)
+
     if not token:
         abort(401, "cloud not find token user")
+
     Reids.delete(token)
 
     return {
@@ -117,7 +128,9 @@ def check_nick(nickname):
 
 
 def token_refresh(nickname):
-    access_token = create_access_token(identity=nickname)
+    access_expires_delta = timedelta(minutes=60)
+
+    access_token = create_access_token(expires_delta=access_expires_delta, identity=nickname)
 
     return {
         "access_token": access_token
@@ -130,7 +143,6 @@ def findid(email):
 
         if not user:
             abort(404, "Not Find")
-        user.first()
 
         return {
             "nickname": user.nickname
