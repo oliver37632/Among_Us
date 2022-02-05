@@ -2,6 +2,7 @@ import boto3
 from server.config import AWS_S3_BUCKET_REGION, AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY
 
 
+
 def s3_connection():
     '''
     s3 bucket에 연결
