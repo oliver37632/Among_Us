@@ -2,19 +2,19 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from server.model.validator.home import PostValidator
+
 from server.view import validate_JSON
 from server.controller.home import home, pageGet, postGet, homeDelete, homePatch
 
 
 class Home(Resource):
     @jwt_required()
-    @validate_JSON(PostValidator)
     def post(self):
         title = request.form['title']
         content = request.form['content']
         town = request.form['town']
         price = request.form['price']
+        category = request.form['category']
         image = request.files['image']
         image.save("./temp")
         nickname = get_jwt_identity()
@@ -24,23 +24,23 @@ class Home(Resource):
             content=content,
             town=town,
             price=price,
-            nickname=nickname
+            nickname=nickname,
+            category=category
         )
 
 
-class PageGet(Resource):
+class HomePageGet(Resource):
     def get(self, page_numbre):
         return pageGet(
             page_numbre=page_numbre
         )
 
 
-class PostGet(Resource):
+class HomePostGet(Resource):
     @jwt_required()
     def get(self, id):
         return postGet(
             id=id,
-            nickname=get_jwt_identity()
         )
 
 
