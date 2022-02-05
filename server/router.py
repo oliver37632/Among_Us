@@ -32,7 +32,20 @@ from server.view.home import HomePostGet
 api_basic.add_resource(HomePostGet, "/home/post/<int:id>")
 
 from server.view.home import HomePageGet
-api_basic.add_resource(HomePageGet, "/home/page/<int:page_numbre>")
+api_basic.add_resource(HomePageGet, "/home/page/<int:page_number>")
 
 from server.view.home import HomePost
 api_basic.add_resource(HomePost, "/home/<int:id>")
+
+from server.view.life import Life
+api_basic.add_resource(Life, "/life")
+
+from server.view.life import LifePostGet
+api_basic.add_resource(LifePostGet, "/life/post/<int:id>")
+
+from server.view.life import LifePageGet
+api_basic.add_resource(LifePageGet, "/life/page/<int:page_number>")
+
+from server.view.life import LifePost
+api_basic.add_resource(LifePost, "/life/<int:id>")
+
