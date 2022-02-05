@@ -10,9 +10,8 @@ class User(Base):
 
     __tablename__ = 'user'
 
-    iduser = Column(Integer, primary_key=True, autoincrement=True)
-    nickname = Column(VARCHAR(16), nullable=True)
-    password = Column(VARCHAR(100), nullable=True)
+    nickname = Column(VARCHAR(16), primary_key=True)
+    password = Column(VARCHAR(255), nullable=True)
     email = Column(VARCHAR(320), nullable=True)
 
     life = relationship("Life", cascade="all,delete", backref="user")
