@@ -99,7 +99,7 @@ def homeDelete(id, nickname):
 
         del_homes = del_homes.first()
 
-        s3.delete_object(Bucket=AWS_S3_BUCKET_NAME, Key=str(id))
+        # s3.delete_object(Bucket=AWS_S3_BUCKET_NAME, Key=str(id))
 
         session.delete(del_homes)
         session.commit()
