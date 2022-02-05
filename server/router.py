@@ -22,3 +22,17 @@ api_basic.add_resource(CheckNick, "/check")
 from server.view.auth import FindId
 api_basic.add_resource(FindId, "/findid")
 
+from server.view.auth import Ping
+api_basic.add_resource(Ping, "/")
+
+from server.view.home import Home
+api_basic.add_resource(Home, "/home")
+
+from server.view.home import HomePostGet
+api_basic.add_resource(HomePostGet, "/home/post/<int:id>")
+
+from server.view.home import HomePageGet
+api_basic.add_resource(HomePageGet, "/home/page/<int:page_numbre>")
+
+from server.view.home import HomePost
+api_basic.add_resource(HomePost, "/home/<int:id>")
