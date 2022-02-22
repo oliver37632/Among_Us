@@ -3,13 +3,10 @@ from flask import abort
 from server.model import session_scope
 from server.model.home import Home
 from server.model.user import User
-from server.model.s3 import s3_put_object, s3_connection
+from server.model.s3 import s3_put_object, s3, get_url
 from server.config import AWS_S3_BUCKET_NAME
 
-s3 = s3_connection()
-
-
-def home(title, content, town, price, nickname, category):
+def home(title, content, town, price, nickname, category, image):
     with session_scope() as session:
         new_home = Home(
             title=title,
@@ -23,9 +20,8 @@ def home(title, content, town, price, nickname, category):
         session.commit()
 
         name = str(new_home.Id_home)
-        s3_put_object(s3, AWS_S3_BUCKET_NAME, "./temp", name)
-        location = s3.get_bucket_location(Bucket=AWS_S3_BUCKET_NAME)['LocationConstraint']
-        image_url = f'https://{AWS_S3_BUCKET_NAME}.s3.{location}.amazonaws.com/{name}'
+        s3_put_object(s3, image, name)
+        image_url = get_url(name)
 
         new_home.image = image_url
 
@@ -99,7 +95,7 @@ def homeDelete(id, nickname):
 
         del_homes = del_homes.first()
 
-        # s3.delete_object(Bucket=AWS_S3_BUCKET_NAME, Key=str(id))
+        s3.delete_object(Bucket=AWS_S3_BUCKET_NAME, Key=str(id))
 
         session.delete(del_homes)
         session.commit()
@@ -109,7 +105,7 @@ def homeDelete(id, nickname):
                }, 204
 
 
-def homePatch(title, content, town, price, nickname, id):
+def homePatch(title, content, town, price, nickname, id, image):
     with session_scope() as session:
 
         homes = session.query(Home).filter(Home.Id_home == id)
@@ -123,9 +119,8 @@ def homePatch(title, content, town, price, nickname, id):
             abort(403, "You can't modify other users' posts")
 
         name = str(id)
-        s3_put_object(s3, AWS_S3_BUCKET_NAME, "./temp", name)
-        location = s3.get_bucket_location(Bucket=AWS_S3_BUCKET_NAME)['LocationConstraint']
-        image_url = f'https://{AWS_S3_BUCKET_NAME}.s3.{location}.amazonaws.com/{name}'
+        s3_put_object(s3, image, name)
+        image_url = get_url(name)
 
         homes.title = title,
         homes.content = content,

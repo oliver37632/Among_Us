@@ -1,5 +1,5 @@
 import boto3
-from server.config import AWS_S3_BUCKET_REGION, AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY
+from server.config import AWS_S3_BUCKET_REGION, AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET_NAME
 
 
 
@@ -23,7 +23,7 @@ def s3_connection():
         return s3
 
 
-def s3_put_object(s3, bucket, filepath, access_key):
+def s3_put_object(s3, filepath, access_key):
     '''
     s3 bucket에 지정 파일 업로드
     :param s3: 연결된 s3 객체(boto3 client)
@@ -33,8 +33,17 @@ def s3_put_object(s3, bucket, filepath, access_key):
     :return: 성공 시 True, 실패 시 False 반환
     '''
     try:
-        s3.upload_file(filepath, bucket, access_key)
+        s3.upload_file(filepath, AWS_S3_BUCKET_NAME, access_key)
     except Exception as e:
         print(e)
         return False
     return "SUCCESS"
+
+
+def get_url(name):
+    location = s3.get_bucket_location(Bucket=AWS_S3_BUCKET_NAME)['LocationConstraint']
+    image_url = f'https://{AWS_S3_BUCKET_NAME}.s3.{location}.amazonaws.com/{name}'
+    return image_url
+
+
+s3 = s3_connection()

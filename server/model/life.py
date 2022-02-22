@@ -7,7 +7,7 @@ class Life(Base):
     __tablename__  = 'life'
 
     Id_life = Column(Integer, primary_key=True, autoincrement=True)
-    content = Column(VARCHAR(2000), nullable=True)
+    content = Column(VARCHAR(8192), nullable=True)
     image = Column(VARCHAR(255))
     category = Column(VARCHAR(45), nullable=True)
     town = Column(VARCHAR(45), nullable=True)

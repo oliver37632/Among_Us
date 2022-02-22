@@ -10,6 +10,7 @@ from server.controller.auht import singup, send_email, check_code, login, logout
 class Singup(Resource):
     @validate_JSON(SingupValidator)
     def post(self):
+
         email = request.json['email']
         nickname = request.json['nickname']
         password = request.json['password']
@@ -80,6 +81,7 @@ class CheckCode(Resource):
 class FindId(Resource):
     @validate_JSON(FindId)
     def post(self):
+
         email = request.json['email']
         return findid(
             email=email
@@ -89,6 +91,7 @@ class FindId(Resource):
 class RePassword(Resource):
     @validate_JSON(CheckEmailCodeValidator)
     def post(self):
+
         email = request.json['email']
         code = request.json['code']
         password = request.json['password']
@@ -98,3 +101,9 @@ class RePassword(Resource):
             code=code,
             password=password
         )
+
+
+class Ping(Resource):
+    def get(self):
+
+        return {"pong"}

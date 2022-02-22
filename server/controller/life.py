@@ -1,12 +1,14 @@
-from flask import abort
+import random
+
+from flask import abort, request
+
+from uuid import uuid4
 
 from server.model import session_scope
 from server.model.life import Life
 from server.model.user import User
-from server.model.s3 import s3_put_object, s3_connection
+from server.model.s3 import s3_put_object, s3, get_url
 from server.config import AWS_S3_BUCKET_NAME
-
-s3 = s3_connection()
 
 
 def life(content, town, nickname, category):
@@ -20,16 +22,21 @@ def life(content, town, nickname, category):
         session.add(new_Life)
         session.commit()
 
-        name = str(new_Life.Id_Life)
-        s3_put_object(s3, AWS_S3_BUCKET_NAME, "./temp", name)
-        location = s3.get_bucket_location(Bucket=AWS_S3_BUCKET_NAME)['LocationConstraint']
-        image_url = f'https://{AWS_S3_BUCKET_NAME}.s3.{location}.amazonaws.com/{name}'
-
-        new_Life.image = image_url
-
         return {
                    "message": "success"
                }, 201
+
+
+def image(image):
+
+    name = str(uuid4())
+    s3_put_object(image, name)
+
+    image_url = get_url(name)
+
+    return {
+        "url": image_url
+    }, 201
 
 
 def pageGet(page_numbre):
@@ -101,7 +108,7 @@ def lifeDelete(id, nickname):
                }, 204
 
 
-def lifePatch(content, town, nickname, id):
+def lifePatch(content, town, nickname, id, image):
     with session_scope() as session:
 
         Lifes = session.query(Life).filter(Life.Id_Life == id)
@@ -114,10 +121,10 @@ def lifePatch(content, town, nickname, id):
         if not users:
             abort(403, "You can't modify other users' posts")
 
-        name = str(id)
-        s3_put_object(s3, AWS_S3_BUCKET_NAME, "./temp", name)
-        location = s3.get_bucket_location(Bucket=AWS_S3_BUCKET_NAME)['LocationConstraint']
-        image_url = f'https://{AWS_S3_BUCKET_NAME}.s3.{location}.amazonaws.com/{name}'
+        name = str(uuid4())
+        s3_put_object(image, name)
+
+        image_url = get_url(name)
 
         Lifes.content = content,
         Lifes.town = town,
@@ -126,3 +133,6 @@ def lifePatch(content, town, nickname, id):
         return {
             "message": "success"
         }
+
+
+def follow(id, nickname):

@@ -8,7 +8,7 @@ class Home(Base):
 
     Id_home = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(VARCHAR(50), nullable=True)
-    content = Column(VARCHAR(2000), nullable=True)
+    content = Column(VARCHAR(8192), nullable=True)
     image = Column(VARCHAR(255))
     category = Column(VARCHAR(45), nullable=True)
     town = Column(VARCHAR(45), nullable=True)
