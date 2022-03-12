@@ -11,11 +11,13 @@ class User(Base):
     __tablename__ = 'user'
 
     nickname = Column(VARCHAR(16), primary_key=True)
-    password = Column(VARCHAR(255), nullable=True)
+    password = Column(VARCHAR(16), nullable=True)
     email = Column(VARCHAR(320), nullable=True)
 
     life = relationship("Life", cascade="all,delete", backref="user")
     home = relationship("Home", cascade="all,delete", backref="user")
+    comment = relationship("Comment", cascade="all,delete", backref="user")
+
 
 
 

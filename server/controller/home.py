@@ -6,6 +6,7 @@ from server.model.user import User
 from server.model.s3 import s3_put_object, s3, get_url
 from server.config import AWS_S3_BUCKET_NAME
 
+
 def home(title, content, town, price, nickname, category, image):
     with session_scope() as session:
         new_home = Home(
